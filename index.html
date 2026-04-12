@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TestCart - Professional E-Commerce</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif
+    }
+
+    body {
+      background: #f8fafc;
+      color: #1e293b
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 8%;
+      background: #0f172a;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15)
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 1px
+    }
+
+    nav a {
+      color: #cbd5e1;
+      margin: 0 18px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: 0.3s;
+      cursor: pointer
+    }
+
+    nav a:hover {
+      color: #fff
+    }
+
+    .search-box input {
+      padding: 8px 14px;
+      border-radius: 25px;
+      border: none;
+      width: 200px
+    }
+
+    .cart-btn {
+      cursor: pointer;
+      position: relative;
+      font-size: 18px
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: #ef4444;
+      color: #fff;
+      border-radius: 50%;
+      padding: 2px 7px;
+      font-size: 12px
+    }
+
+    .section {
+      display: none;
+      padding: 70px 8%
+    }
+
+    .section.active {
+      display: block
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      padding: 80px 60px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25)
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+      font-weight: 700
+    }
+
+    .hero p {
+      opacity: 0.9;
+      margin-bottom: 20px
+    }
+
+    .hero ul {
+      list-style: none;
+      margin: 25px 0
+    }
+
+    .hero ul li {
+      margin: 10px 0;
+      opacity: 0.85
+    }
+
+    .hero button {
+      padding: 12px 28px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 30px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s
+    }
+
+    .hero button:hover {
+      background: #2563eb;
+      transform: translateY(-2px)
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      transition: 0.3s;
+      cursor: pointer
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15)
+    }
+
+    .card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      transition: 0.4s;
+    }
+
+    .card:hover img {
+      transform: scale(1.08);
+    }
+
+    .card-content {
+      padding: 20px
+    }
+
+    .card-content h3 {
+      font-size: 18px;
+      margin-bottom: 10px
+    }
+
+    .price {
+      color: #16a34a;
+      font-weight: 600;
+      margin-bottom: 15px
+    }
+
+    button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px
+    }
+
+    .add-btn {
+      background: #0f172a;
+      color: #fff;
+      width: 100%;
+      transition: 0.3s
+    }
+
+    .add-btn:hover {
+      background: #1e293b
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000
+    }
+
+    .modal-content {
+      background: #fff;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 18px;
+      padding: 25px;
+      position: relative
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 12px
+    }
+
+    .close-modal {
+      position: absolute;
+      right: 18px;
+      top: 12px;
+      font-size: 18px;
+      cursor: pointer
+    }
+
+    .cart-panel {
+      position: fixed;
+      right: -400px;
+      top: 0;
+      width: 380px;
+      height: 100vh;
+      background: #ffffff;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.25);
+      padding: 30px 25px;
+      transition: 0.4s;
+      overflow-y: auto;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-panel h2 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+
+    .cart-panel .total {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+
+    .cart-panel.active {
+      right: 0
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0
+    }
+
+    .checkout {
+      margin-top: 15px;
+      background: #16a34a;
+      color: #fff;
+      width: 100%
+    }
+
+    .clear-cart {
+      margin-top: 8px;
+      background: #64748b;
+      color: #fff;
+      width: 100%
+    }
+
+    .close-cart {
+      margin-top: 8px;
+      background: #0f172a;
+      color: #fff;
+      width: 100%
+    }
+
+    .support-form {
+      max-width: 550px;
+      margin: auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08)
+    }
+
+    .support-form h2 {
+      margin-bottom: 20px
+    }
+
+    .support-form input,
+    .support-form textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px
+    }
+
+    .support-form button {
+      background: #0f172a;
+      color: #fff;
+      width: 100%;
+      margin-top: 10px
+    }
+
+    .success-msg {
+      color: #16a34a;
+      margin-top: 10px;
+      font-weight: 600
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      margin-top: 60px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 14px
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">TestCart</div>
+    <nav>
+      <a onclick="showSection('home')">Home</a>
+      <a onclick="showSection('products')">Products</a>
+      <a onclick="showSection('support')">Support</a>
+    </nav>
+    <div class="search-box">
+      <input type="text" id="search" placeholder="Search product...">
+    </div>
+    <div class="cart-btn" onclick="toggleCart()">
+      🛒 <span class="cart-count" id="cart-count">0</span>
+    </div>
+  </header>
+
+  <section id="home" class="section active">
+    <div class="hero">
+      <h1>Welcome to TestCart</h1>
+      <p>A modern and professional e-commerce demo platform built using HTML, CSS, and JavaScript.</p>
+      <ul>
+        <li>✔ Secure & Fast Shopping Experience</li>
+        <li>✔ Real-time Cart Management</li>
+        <li>✔ Interactive Product Details</li>
+        <li>✔ Integrated Customer Support</li>
+      </ul>
+      <button onclick="showSection('products')">Explore Products</button>
+    </div>
+  </section>
+
+  <section id="products" class="section">
+    <div class="products" id="product-list"></div>
+  </section>
+
+  <section id="support" class="section">
+    <div class="support-form">
+      <h2>Support & Feedback</h2>
+      <input type="text" id="name" placeholder="Your Name">
+      <input type="email" id="email" placeholder="Your Email">
+      <textarea id="message" rows="4" placeholder="Your Message"></textarea>
+      <button onclick="submitFeedback()">Submit</button>
+      <div class="success-msg" id="successMsg"></div>
+    </div>
+  </section>
+
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">✖</span>
+      <img id="modalImage">
+      <h3 id="modalTitle"></h3>
+      <p id="modalDescription"></p>
+      <h4 id="modalPrice"></h4>
+      <button class="add-btn" onclick="addFromModal()">Add to Cart</button>
+    </div>
+  </div>
+
+  <div class="cart-panel" id="cart-panel">
+    <h2>Your Cart</h2>
+    <div id="cart-items"></div>
+    <div class="total" style="margin-bottom: 10px;">Total: ₹<span id="cart-total">0</span></div>
+    <textarea id="shipping-address" rows="3" placeholder="Enter Full Shipping Address" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 14px; resize: vertical;"></textarea>
+    <button class="checkout" onclick="checkout()">Checkout</button>
+    <button class="clear-cart" onclick="clearCart()">Clear Cart</button>
+    <button class="close-cart" onclick="toggleCart()">Close</button>
+  </div>
+
+  <footer>© 2026 TestCart. All rights reserved.</footer>
+
+  <script>
+    let products = [];
+
+    async function fetchProducts() {
+      try {
+        const response = await fetch('http://localhost:5000/api/products');
+        products = await response.json();
+        renderProducts();
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    }
+
+    let cart = [];
+    let selectedProduct = null;
+
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
+    }
+
+    function toggleCart() {
+      document.getElementById('cart-panel').classList.toggle('active');
+    }
+
+    function renderProducts() {
+      const container = document.getElementById('product-list');
+      container.innerHTML = '';
+      products.forEach(product => {
+        container.innerHTML += `
+    <div class="card" onclick="openModal(${product.id})">
+      <img src="${product.image}" onerror="this.src='https://via.placeholder.com/400x300?text=Image+Not+Available'">
+      <div class="card-content">
+        <h3>${product.name}</h3>
+        <div class="price">₹${product.price}</div>
+        <button class="add-btn" onclick="event.stopPropagation();addToCart(${product.id})">Add to Cart</button>
+      </div>
+    </div>`;
+      });
+    }
+
+    function openModal(id) {
+      selectedProduct = products.find(p => p.id === id);
+      document.getElementById('modalImage').src = selectedProduct.image;
+      document.getElementById('modalTitle').innerText = selectedProduct.name;
+      document.getElementById('modalDescription').innerText = selectedProduct.description;
+      document.getElementById('modalPrice').innerText = 'Price: ₹' + selectedProduct.price;
+      document.getElementById('productModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('productModal').style.display = 'none';
+    }
+
+    function addFromModal() {
+      addToCart(selectedProduct.id);
+      closeModal();
+    }
+
+    function addToCart(id) {
+      const item = products.find(p => p.id === id);
+      cart.push(item);
+      updateCart();
+    }
+
+    function updateCart() {
+      const cartItems = document.getElementById('cart-items');
+      const cartCount = document.getElementById('cart-count');
+      const cartTotal = document.getElementById('cart-total');
+      cartItems.innerHTML = '';
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price;
+        cartItems.innerHTML += `<div class="cart-item"><span>${item.name}</span><span>₹${item.price}</span></div>`;
+      });
+      cartCount.innerText = cart.length;
+      cartTotal.innerText = total;
+    }
+
+    function clearCart() { cart = []; updateCart(); }
+
+    async function checkout() {
+      if (cart.length === 0) { alert('Cart is empty'); return; }
+      const address = document.getElementById('shipping-address').value.trim();
+      if (!address) { alert('Please enter a shipping address'); return; }
+
+      let total = 0;
+      const itemsMap = {};
+      cart.forEach(item => {
+        total += item.price;
+        if (itemsMap[item.id]) {
+          itemsMap[item.id].quantity += 1;
+        } else {
+          itemsMap[item.id] = { product_id: item.id, quantity: 1 };
+        }
+      });
+      const items = Object.values(itemsMap);
+
+      try {
+        // Warning: This standalone file does not support token auth out-of-the-box
+        // The fully working frontend handles checkouts via /frontend/js/cart.js
+        const response = await fetch('http://localhost:5000/api/orders/create', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${localStorage.getItem('token')}` // Un-comment if you implement login in this file!
+          },
+          body: JSON.stringify({ items, total, address })
+        });
+        const result = await response.json();
+        if (response.ok) {
+          alert('Order placed successfully! Order ID: ' + result.orderId);
+          cart = [];
+          updateCart();
+          toggleCart();
+        } else {
+          alert('Error: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Checkout error:', error);
+        alert('An error occurred during checkout.');
+      }
+    }
+
+    async function submitFeedback() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const message = document.getElementById('message').value;
+      if (!name || !email || !message) { alert('Fill all fields'); return; }
+
+      try {
+        const response = await fetch('http://localhost:5000/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message })
+        });
+        const result = await response.json();
+        if (response.ok) {
+          document.getElementById('successMsg').innerText = 'Feedback submitted successfully!';
+          document.getElementById('name').value = '';
+          document.getElementById('email').value = '';
+          document.getElementById('message').value = '';
+        } else {
+          alert('Error: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Support error:', error);
+        alert('An error occurred while submitting feedback.');
+      }
+    }
+
+    fetchProducts();
+  </script>
+
+</body>
+
+</html>
