@@ -1,78 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TestCart Pro - Home</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-</head>
-
-<body>
-
-  <header>
-    <div class="logo">TestCart Pro</div>
-    <nav id="main-nav">
-      <a onclick="showSection('home')">Home</a>
-      <a onclick="showSection('products')">Products</a>
-      <!-- Links injected dynamically via app.js -->
-    </nav>
-    <div class="search-box">
-      <input type="text" id="search" placeholder="Search product...">
-    </div>
-    <div class="cart-btn" onclick="toggleCart()">
-      🛒 <span class="cart-count" id="cart-count">0</span>
-    </div>
-  </header>
-
-  <section id="home" class="section active">
-    <div class="hero">
-      <h1>Welcome to TestCart Pro</h1>
-      <p>A modern and professional e-commerce demo platform built using HTML, CSS, and JavaScript connected to a
-        powerful MySQL Backend.</p>
-      <ul>
-        <li>✔ Secure & Fast Shopping Experience</li>
-        <li>✔ Real-time Database Cart Management</li>
-        <li>✔ Interactive Admin Panel & Authentication</li>
-        <li>✔ Integrated Razorpay Checkouts</li>
-      </ul>
-      <button onclick="showSection('products')">Explore Products</button>
-    </div>
-  </section>
-
-  <section id="products" class="section">
-    <div class="products" id="product-list"></div>
-  </section>
-
-  <!-- Modal -->
-  <div class="modal" id="productModal">
-    <div class="modal-content">
-      <span class="close-modal" onclick="closeModal()">✖</span>
-      <img id="modalImage">
-      <h3 id="modalTitle"></h3>
-      <p id="modalDescription"></p>
-      <h4 id="modalPrice"></h4>
-      <button class="add-btn" onclick="addFromModal()">Add to Cart</button>
-    </div>
-  </div>
-
-  <!-- Cart Panel -->
-  <div class="cart-panel" id="cart-panel">
-    <h2>Your Cart</h2>
-    <div id="cart-items"></div>
-    <div class="total" style="margin-bottom: 10px;">Total: ₹<span id="cart-total">0</span></div>
-    <textarea id="shipping-address" rows="3" placeholder="Enter Full Shipping Address" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 14px; resize: vertical;"></textarea>
-    <button class="checkout" onclick="checkout()">Checkout</button>
-    <button class="close-cart" onclick="toggleCart()">Close</button>
-  </div>
-
-  <footer>© 2026 TestCart Pro. All rights reserved.</footer>
-
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/products.js"></script>
-  <script src="js/cart.js"></script>
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TestCart Pro</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

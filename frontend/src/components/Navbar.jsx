@@ -18,6 +18,7 @@ export default function Navbar() {
       <Link to="/" className="logo">TestCart Pro</Link>
       <nav>
         <Link to="/">Home</Link>
+        <Link to="/products">Product List</Link>
         {user ? (
           <>
             {user.role === 'admin' && <Link to="/admin" className="active">Admin</Link>}

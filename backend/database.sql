@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS orders (
   id INT PRIMARY KEY AUTO_INCREMENT,
   user_id INT NOT NULL,
   total INT NOT NULL,
-  status ENUM('pending', 'shipped', 'delivered') DEFAULT 'pending',
+  status ENUM('pending', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+  shipping_address TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -65,7 +66,7 @@ CREATE TABLE IF NOT EXISTS payments (
   razorpay_payment_id VARCHAR(255),
   razorpay_order_id VARCHAR(255),
   razorpay_signature VARCHAR(255),
-  status ENUM('pending', 'successful', 'failed') DEFAULT 'pending',
+  status ENUM('pending', 'successful', 'failed', 'cod_pending') DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );

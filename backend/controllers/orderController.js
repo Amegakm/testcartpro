@@ -30,49 +30,65 @@ exports.getMyOrders = async (req, res) => {
 };
 
 // @route   POST /api/orders/create
-// Creates order in DB and creates Razorpay Order
+// Creates order in DB — supports COD and Razorpay (UPI/Card)
 exports.createOrder = async (req, res) => {
   try {
-    const { items, total, address } = req.body;
+    const { items, total, address, paymentMethod } = req.body;
     if (!items || items.length === 0) return res.status(400).json({ error: 'No items' });
     if (!address) return res.status(400).json({ error: 'Shipping address is required' });
 
+    const isCOD = paymentMethod === 'cod';
+
     // Insert order
-    const [orderResult] = await db.query('INSERT INTO orders (user_id, total, shipping_address) VALUES (?, ?, ?)', [req.user.id, total, address]);
+    const [orderResult] = await db.query(
+      'INSERT INTO orders (user_id, total, shipping_address) VALUES (?, ?, ?)',
+      [req.user.id, total, address]
+    );
     const orderId = orderResult.insertId;
 
     // Insert items
     const orderItems = items.map(i => [orderId, i.product_id, i.quantity]);
     await db.query('INSERT INTO order_items (order_id, product_id, quantity) VALUES ?', [orderItems]);
 
-    // Create Razorpay Order
-    let rzpOrder;
-    try {
-      if (process.env.RAZORPAY_KEY_ID) {
-        rzpOrder = await razorpay.orders.create({
-          amount: total * 100, // paise
-          currency: 'INR',
-          receipt: `receipt_order_${orderId}`
-        });
-      }
-    } catch (e) {
-      console.error('Razorpay Error:', e);
-      // Fallback for mock if keys missing
-      rzpOrder = { id: `mock_rzp_${Date.now()}` }; 
-    }
-
-    // Insert pending payment
-    await db.query('INSERT INTO payments (order_id, razorpay_order_id, status) VALUES (?, ?, ?)', [orderId, rzpOrder ? rzpOrder.id : 'N/A', 'pending']);
-    
     // Clear user cart
     const [cartRows] = await db.query('SELECT id FROM cart WHERE user_id = ?', [req.user.id]);
     if (cartRows.length > 0) {
       await db.query('DELETE FROM cart_items WHERE cart_id = ?', [cartRows[0].id]);
     }
 
+    // COD — no Razorpay needed
+    if (isCOD) {
+      await db.query(
+        'INSERT INTO payments (order_id, razorpay_order_id, status) VALUES (?, ?, ?)',
+        [orderId, 'COD', 'cod_pending']
+      );
+      return res.status(201).json({ orderId, paymentMethod: 'cod', amount: total });
+    }
+
+    // Razorpay (UPI / Card)
+    let rzpOrder;
+    try {
+      if (process.env.RAZORPAY_KEY_ID) {
+        rzpOrder = await razorpay.orders.create({
+          amount: total * 100,
+          currency: 'INR',
+          receipt: `receipt_order_${orderId}`
+        });
+      }
+    } catch (e) {
+      console.error('Razorpay Error:', e);
+      rzpOrder = { id: `mock_rzp_${Date.now()}` };
+    }
+
+    await db.query(
+      'INSERT INTO payments (order_id, razorpay_order_id, status) VALUES (?, ?, ?)',
+      [orderId, rzpOrder ? rzpOrder.id : 'N/A', 'pending']
+    );
+
     res.status(201).json({
       orderId,
       razorpayOrderId: rzpOrder ? rzpOrder.id : null,
+      razorpayKey: process.env.RAZORPAY_KEY_ID || '',
       amount: total,
       currency: 'INR'
     });

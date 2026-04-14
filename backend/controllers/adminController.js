@@ -26,24 +26,32 @@ exports.deleteProduct = async (req, res) => {
 exports.getAllOrders = async (req, res) => {
   try {
     const [orders] = await db.query(`
-      SELECT o.*, u.name as user_name, u.email as user_email 
-      FROM orders o 
-      JOIN users u ON o.user_id = u.id 
+      SELECT 
+        o.id, o.total, o.status, o.created_at,
+        o.shipping_address,
+        u.name  AS user_name,
+        u.email AS user_email,
+        p.status AS payment_status
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      LEFT JOIN payments p ON p.order_id = o.id
       ORDER BY o.created_at DESC
     `);
-    
+
     for (let order of orders) {
       const [items] = await db.query(`
-        SELECT oi.quantity, p.name, p.image, p.price 
-        FROM order_items oi 
-        JOIN products p ON oi.product_id = p.id 
-        WHERE oi.order_id = ?`, 
-      [order.id]);
+        SELECT oi.quantity, pr.name, pr.image, pr.price
+        FROM order_items oi
+        JOIN products pr ON oi.product_id = pr.id
+        WHERE oi.order_id = ?`,
+        [order.id]
+      );
       order.items = items;
     }
 
     res.json(orders);
   } catch (error) {
+    console.error('Admin orders error:', error);
     res.status(500).json({ error: 'Error fetching orders' });
   }
 };
