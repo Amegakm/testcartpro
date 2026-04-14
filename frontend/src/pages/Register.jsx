@@ -1,21 +1,24 @@
 import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { ToastContext } from '../context/ToastContext';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { registerUser } = useContext(AuthContext);
+  const { addToast } = useContext(ToastContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await registerUser(name, email, password);
+      addToast('Account created! Welcome aboard! 🎉', 'success');
       navigate('/');
     } catch (err) {
-      alert(err.message);
+      addToast(err.message, 'error');
     }
   };
 

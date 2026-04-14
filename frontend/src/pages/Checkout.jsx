@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
+import { ToastContext } from '../context/ToastContext';
 import { apiFetch } from '../utils/api';
 
 const DELIVERY_FEE = 40;
@@ -9,6 +10,7 @@ const DELIVERY_FEE = 40;
 export default function Checkout() {
   const { user } = useContext(AuthContext);
   const { cartItems, cartTotal, clearCart, setIsCartOpen } = useContext(CartContext);
+  const { addToast } = useContext(ToastContext);
   const navigate = useNavigate();
 
   const [paymentMethod, setPaymentMethod] = useState('cod');
@@ -34,7 +36,7 @@ export default function Checkout() {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
-    if (cartItems.length === 0) return alert('Your cart is empty!');
+    if (cartItems.length === 0) return addToast('Your cart is empty!', 'error');
 
     setLoading(true);
     try {
@@ -51,7 +53,7 @@ export default function Checkout() {
         });
         clearCart();
         setIsCartOpen(false);
-        alert('🎉 Order placed successfully! Pay on delivery.');
+        addToast('🎉 Order placed successfully! Pay on delivery.', 'success');
         navigate('/orders');
       } else {
         // UPI / Razorpay
@@ -69,7 +71,7 @@ export default function Checkout() {
         if (!orderData.razorpayOrderId || orderData.razorpayOrderId.startsWith('mock_')) {
           clearCart();
           setIsCartOpen(false);
-          alert('✅ Mock Payment Successful! (Add Razorpay keys for live payments)');
+          addToast('✅ Mock Payment Successful! (Add Razorpay keys for live payments)', 'success');
           navigate('/orders');
           return;
         }
@@ -101,10 +103,10 @@ export default function Checkout() {
               });
               clearCart();
               setIsCartOpen(false);
-              alert('🎉 Payment Verified & Successful!');
+              addToast('🎉 Payment Verified & Successful!', 'success');
               navigate('/orders');
             } catch {
-              alert('❌ Payment verification failed.');
+              addToast('❌ Payment verification failed.', 'error');
             }
           },
           modal: { ondismiss: () => setLoading(false) },
@@ -114,7 +116,7 @@ export default function Checkout() {
         rzp.open();
       }
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      addToast(`Error: ${err.message}`, 'error');
     } finally {
       setLoading(false);
     }

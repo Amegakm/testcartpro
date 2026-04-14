@@ -10,10 +10,12 @@ import Admin from './pages/Admin';
 import Checkout from './pages/Checkout';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ToastProvider } from './context/ToastContext';
 
 function App() {
   return (
-    <AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
       <CartProvider>
         <BrowserRouter>
           <Navbar />
@@ -30,6 +32,7 @@ function App() {
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
+    </ToastProvider>
   );
 }
 
