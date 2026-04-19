@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
-import { apiFetch } from '../utils/api';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,18 +14,56 @@ const STATUS_CONFIG = {
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [indexLink, setIndexLink] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const parseDate = (val) => {
+    if (!val) return new Date().toISOString();
+    if (typeof val.toDate === 'function') return val.toDate().toISOString();
+    return new Date(val).toISOString();
+  };
+
   useEffect(() => {
     if (!user) return navigate('/login');
     const fetchOrders = async () => {
+      setLoading(true);
+      setError(null);
+      setIndexLink(null);
       try {
-        const data = await apiFetch('/orders');
-        setOrders(data);
+        const q = query(
+          collection(db, 'orders'),
+          where('userId', '==', user.id),
+          orderBy('createdAt', 'desc')
+        );
+        const querySnapshot = await getDocs(q);
+        const ordersList = querySnapshot.docs.map(doc => {
+          try {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              created_at: parseDate(data.createdAt || data.created_at)
+            };
+          } catch (e) {
+            console.error('Error parsing order:', doc.id, e);
+            return null;
+          }
+        }).filter(Boolean);
+        setOrders(ordersList);
       } catch (err) {
         console.error('Failed fetching orders', err);
+        let msg = err.message;
+        if (msg.includes('index')) {
+          const urlMatch = msg.match(/(https:\/\/console\.firebase\.google\.com[^\s]+)/);
+          if (urlMatch) {
+            setIndexLink(urlMatch[0]);
+          }
+          msg = 'Database indexing is required to show your orders. Please generate the index by clicking the button below. Once created, wait about 1-2 minutes and refresh.';
+        }
+        setError(msg);
       } finally {
         setLoading(false);
       }
@@ -39,6 +78,27 @@ export default function Orders() {
         <p className="orders-sub">{orders.length} order{orders.length !== 1 ? 's' : ''} placed</p>
       </div>
 
+      {error && (
+        <div style={{
+          background: '#fee2e2', color: '#b91c1c', padding: '16px', 
+          borderRadius: '12px', marginBottom: '24px', border: '1px solid #fecaca',
+          fontSize: '14px', lineHeight: '1.5'
+        }}>
+          <strong>⚠️ Database Setup Required</strong><br/>
+          {error}
+          {indexLink && (
+            <div style={{ marginTop: '12px' }}>
+              <a href={indexLink} target="_blank" rel="noreferrer" style={{
+                display: 'inline-block', padding: '10px 16px', background: '#b91c1c', 
+                color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold'
+              }}>
+                Create Database Index
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+
       {loading ? (
         <p className="orders-empty">Loading your orders...</p>
       ) : orders.length === 0 ? (
@@ -46,7 +106,7 @@ export default function Orders() {
           <span className="orders-empty-icon">🛍️</span>
           <h3>No orders yet!</h3>
           <p>Start shopping and your orders will appear here.</p>
-          <button className="btn btn-green" onClick={() => navigate('/')}>Browse Products</button>
+          <button className="btn btn-green" onClick={() => navigate('/products')}>Browse Products</button>
         </div>
       ) : (
         <div className="orders-list">
@@ -57,12 +117,10 @@ export default function Orders() {
 
             return (
               <div key={order.id} className="order-history-card">
-                {/* Card Header */}
                 <div
                   className="order-history-header"
                   onClick={() => setExpandedId(isExpanded ? null : order.id)}
                 >
-                  {/* Left — images + info grouped tight */}
                   <div className="oh-group">
                     <div className="oh-previews">
                       {(order.items || []).slice(0, 4).map((item, i) => (
@@ -93,7 +151,6 @@ export default function Orders() {
                     </div>
                   </div>
 
-                  {/* Right — total + status + toggle */}
                   <div className="oh-right">
                     <span className="oh-total">₹{Number(order.total).toFixed(2)}</span>
                     <span
@@ -106,14 +163,12 @@ export default function Orders() {
                   </div>
                 </div>
 
-                {/* Expanded Items */}
                 {isExpanded && (
                   <div className="order-history-body">
-                    {/* Shipping address if available */}
-                    {order.shipping_address && (
+                    {order.shippingAddress && (
                       <div className="oh-address">
                         <span>📍</span>
-                        <p>{order.shipping_address}</p>
+                        <p>{order.shippingAddress}</p>
                       </div>
                     )}
 

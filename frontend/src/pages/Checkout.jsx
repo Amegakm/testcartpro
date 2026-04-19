@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 import { ToastContext } from '../context/ToastContext';
-import { apiFetch } from '../utils/api';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 const DELIVERY_FEE = 40;
 
@@ -40,83 +41,37 @@ export default function Checkout() {
 
     setLoading(true);
     try {
-      if (paymentMethod === 'cod') {
-        // COD — create order directly, no payment gateway
-        await apiFetch('/orders/create', {
-          method: 'POST',
-          body: JSON.stringify({
-            items: cartItems,
-            total: cartTotal + DELIVERY_FEE,
-            address: addressString,
-            paymentMethod: 'cod',
-          }),
-        });
-        clearCart();
-        setIsCartOpen(false);
-        addToast('🎉 Order placed successfully! Pay on delivery.', 'success');
-        navigate('/orders');
-      } else {
-        // UPI / Razorpay
-        const orderData = await apiFetch('/orders/create', {
-          method: 'POST',
-          body: JSON.stringify({
-            items: cartItems,
-            total: cartTotal + DELIVERY_FEE,
-            address: addressString,
-            paymentMethod: 'razorpay',
-          }),
-        });
-
-        // Mock fallback if Razorpay keys missing
-        if (!orderData.razorpayOrderId || orderData.razorpayOrderId.startsWith('mock_')) {
-          clearCart();
-          setIsCartOpen(false);
-          addToast('✅ Mock Payment Successful! (Add Razorpay keys for live payments)', 'success');
-          navigate('/orders');
-          return;
+      const total = cartTotal + DELIVERY_FEE;
+      
+      const orderData = {
+        userId: user.id,
+        userEmail: user.email,
+        total,
+        shippingAddress: addressString,
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        items: cartItems,
+        payment: {
+          method: paymentMethod,
+          status: paymentMethod === 'cod' ? 'cod_pending' : 'successful',
+          razorpayOrderId: paymentMethod === 'cod' ? 'COD' : `mock_${Date.now()}`
         }
+      };
 
-        const options = {
-          key: orderData.razorpayKey || '',
-          amount: (cartTotal + DELIVERY_FEE) * 100,
-          currency: 'INR',
-          name: 'TestCart Pro',
-          description: 'Order Payment',
-          order_id: orderData.razorpayOrderId,
-          prefill: {
-            name: `${form.firstName} ${form.lastName}`,
-            email: form.email,
-            contact: form.phone,
-          },
-          notes: { address: addressString },
-          theme: { color: '#0f172a' },
-          handler: async function (response) {
-            try {
-              await apiFetch('/orders/verify', {
-                method: 'POST',
-                body: JSON.stringify({
-                  orderId: orderData.orderId,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature,
-                }),
-              });
-              clearCart();
-              setIsCartOpen(false);
-              addToast('🎉 Payment Verified & Successful!', 'success');
-              navigate('/orders');
-            } catch {
-              addToast('❌ Payment verification failed.', 'error');
-            }
-          },
-          modal: { ondismiss: () => setLoading(false) },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      }
+      await addDoc(collection(db, 'orders'), orderData);
+      
+      await clearCart();
+      setIsCartOpen(false);
+      
+      const successMsg = paymentMethod === 'cod' 
+        ? 'Order placed successfully! Pay on delivery.' 
+        : 'Mock Payment Successful! (Add Razorpay keys for live payments)';
+        
+      addToast(successMsg, 'success');
+      navigate('/orders');
     } catch (err) {
       addToast(`Error: ${err.message}`, 'error');
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -132,7 +87,6 @@ export default function Checkout() {
       <h1 className="checkout-title">Checkout</h1>
 
       <form className="checkout-layout" onSubmit={handlePlaceOrder}>
-        {/* LEFT — Delivery Info */}
         <div className="checkout-left">
           <h2 className="section-heading">Delivery Information</h2>
 
@@ -220,9 +174,7 @@ export default function Checkout() {
           />
         </div>
 
-        {/* RIGHT — Cart Totals + Payment */}
         <div className="checkout-right">
-          {/* Cart Totals */}
           <div className="checkout-box">
             <h2 className="section-heading">Cart Totals</h2>
             <div className="totals-row">
@@ -239,7 +191,6 @@ export default function Checkout() {
             </div>
           </div>
 
-          {/* Payment Method */}
           <div className="checkout-box">
             <h2 className="section-heading">Payment Method</h2>
 

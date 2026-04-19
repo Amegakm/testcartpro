@@ -7,6 +7,7 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { registerUser } = useContext(AuthContext);
   const { addToast } = useContext(ToastContext);
   const navigate = useNavigate();
@@ -28,7 +29,21 @@ export default function Register() {
       <form onSubmit={handleSubmit}>
         <input type="text" placeholder="Full Name" value={name} onChange={e=>setName(e.target.value)} required />
         <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} required />
+        <div className="password-input-wrapper">
+          <input 
+            type={showPassword ? 'text' : 'password'} 
+            placeholder="Password" 
+            value={password} 
+            onChange={e=>setPassword(e.target.value)} 
+            required 
+          />
+          <span 
+            className="password-toggle" 
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? '👁️‍🗨️' : '👁️'}
+          </span>
+        </div>
         <button type="submit" className="btn btn-green btn-full">Register</button>
       </form>
       <p style={{ marginTop: '15px', textAlign: 'center' }}>

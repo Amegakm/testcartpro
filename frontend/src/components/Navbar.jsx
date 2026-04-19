@@ -29,7 +29,6 @@ export default function Navbar() {
         {user ? (
           <>
             <Link to="/orders">My Orders</Link>
-            {user.role === 'admin' && <Link to="/admin">Admin</Link>}
           </>
         ) : (
           <>
@@ -49,6 +48,11 @@ export default function Navbar() {
             <span className="settings-icon" onClick={() => setIsSettingsOpen(!isSettingsOpen)}>⚙️</span>
             {isSettingsOpen && (
               <div className="settings-dropdown">
+                {user.role === 'admin' && (
+                  <button onClick={() => { setIsSettingsOpen(false); navigate('/admin'); }}>
+                    Admin Panel
+                  </button>
+                )}
                 <button onClick={toggleTheme}>Toggle Theme</button>
                 <button onClick={handleLogout}>Logout</button>
               </div>

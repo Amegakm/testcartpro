@@ -6,6 +6,7 @@ import { ToastContext } from '../context/ToastContext';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { loginUser } = useContext(AuthContext);
   const { addToast } = useContext(ToastContext);
   const navigate = useNavigate();
@@ -26,7 +27,21 @@ export default function Login() {
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} required />
+        <div className="password-input-wrapper">
+          <input 
+            type={showPassword ? 'text' : 'password'} 
+            placeholder="Password" 
+            value={password} 
+            onChange={e=>setPassword(e.target.value)} 
+            required 
+          />
+          <span 
+            className="password-toggle" 
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? '👁️‍🗨️' : '👁️'}
+          </span>
+        </div>
         <button type="submit" className="btn btn-green btn-full">Login</button>
       </form>
       <div style={{ marginTop: '20px', textAlign: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>

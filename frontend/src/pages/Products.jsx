@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { CartContext } from '../context/CartContext';
-import { apiFetch } from '../utils/api';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -9,8 +10,12 @@ export default function Products() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const data = await apiFetch('/products');
-        setProducts(data);
+        const querySnapshot = await getDocs(collection(db, 'products'));
+        const productsList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setProducts(productsList);
       } catch (error) {
         console.error('Failed to load products', error);
       }
@@ -29,7 +34,7 @@ export default function Products() {
               <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>{p.description}</p>
               <div style={{ marginTop: 'auto' }}>
                 <div className="price">₹{p.price}</div>
-                <button className="btn btn-full" onClick={() => addToCart(p.id)}>Add to Cart</button>
+                <button className="btn btn-full" onClick={() => addToCart(p)}>Add to Cart</button>
               </div>
             </div>
           </div>

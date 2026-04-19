@@ -92,9 +92,27 @@ nav a:hover, nav a.active {
 /* Product Grid */
 .products {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 30px;
   padding: 40px 8%;
+}
+
+@media (max-width: 1200px) {
+  .products {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .products {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .products {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card {
@@ -132,6 +150,25 @@ nav a:hover, nav a.active {
   outline: none;
 }
 .form-container input:focus { border-color: #3b82f6; }
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  user-select: none;
+  font-size: 18px;
+  color: #64748b;
+  transition: color 0.2s;
+}
+.password-toggle:hover {
+  color: #3b82f6;
+}
+
 
 /* Tables */
 .table-container {
@@ -959,6 +996,118 @@ body.dark-theme .settings-dropdown button:hover {
   color: #60a5fa;
 }
 
+/* Admin Panel Dark Mode */
+body.dark-theme .admin-page {
+  background: #0f172a;
+}
+body.dark-theme .admin-section,
+body.dark-theme .stat-card,
+body.dark-theme .order-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+body.dark-theme .order-card-header,
+body.dark-theme .order-item-row {
+  background: #0f172a;
+}
+body.dark-theme .admin-title,
+body.dark-theme .section-heading {
+  color: #f1f5f9;
+}
+body.dark-theme .admin-sub,
+body.dark-theme .stat-label,
+body.dark-theme .order-user small {
+  color: #94a3b8;
+}
+body.dark-theme .order-id {
+  background: rgba(67, 56, 202, 0.2);
+  color: #818cf8;
+}
+body.dark-theme .order-user,
+body.dark-theme .order-total,
+body.dark-theme .order-payment {
+  color: #e2e8f0;
+}
+body.dark-theme .order-payment {
+  background: #0f172a;
+}
+body.dark-theme .admin-search,
+body.dark-theme .admin-select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+body.dark-theme .admin-loading {
+  color: #64748b;
+}
+
+/* Manage Product Grid */
+.admin-product-list {
+  margin-top: 10px;
+}
+
+.manage-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .manage-product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.manage-product-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.manage-product-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.manage-product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.manage-product-info strong {
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.manage-product-info span {
+  font-size: 13px;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Dark Theme for Manage Product */
+body.dark-theme .manage-product-item {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-theme .manage-product-info strong {
+  color: #f1f5f9;
+}
+
 /* Right side */
 .oh-right {
   display: flex;
@@ -1115,5 +1264,81 @@ body.dark-theme .settings-dropdown button:hover {
 .oh-footer strong {
   font-size: 17px;
   color: #0f172a;
+}
+
+/* Drag & Drop Upload Zone */
+.upload-zone {
+  grid-column: span 2;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.upload-zone:hover, .upload-zone.dragging {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.upload-icon {
+  font-size: 32px;
+  margin-bottom: 5px;
+}
+
+.upload-text {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.upload-text strong {
+  color: #16a34a;
+}
+
+.preview-container {
+  margin-top: 10px;
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+}
+
+.preview-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.upload-progress {
+  width: 100%;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #16a34a;
+  transition: width 0.3s ease;
+}
+
+body.dark-theme .upload-zone {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-theme .upload-zone:hover {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: #22c55e;
 }
 
